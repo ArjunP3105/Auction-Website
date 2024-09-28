@@ -1,0 +1,107 @@
+{% extends "auctions/layout.html" %}
+
+{% block body%}
+<div class="img">
+    {%if owner and active%}
+    <form action="{% url 'close' item.id %}" method="POST">
+        {%csrf_token%} 
+        <input id="red1" type="submit" value="Close Auction">
+    </form>
+    {%endif%}
+    <h5>Listing:{{item.title}}</h5>
+    <img  src = "{{item.image}}" alt="{{item.title}}">
+</div>
+{% if close_message %}
+    <div class="list-group">
+        <div class="alert alert-success" role="alert">
+            {{close_message}}
+        </div>
+    </div>
+{%endif%}
+
+    {% if not active and winner %}
+        <div class="list-group">
+            <div class="alert alert-success" role="alert">
+            Congratulations!!! You have won the auction
+            </div>
+        </div>
+    {%endif%}
+    {% if not active and owner %}
+    <div class="list-group">
+        <div class="alert alert-success" role="alert">
+            Congratulations!!! Item Sold for ${{item.price.price}} to {{item.price.bid_user}}
+        </div>
+    </div>
+    {%endif%}
+<p>{{item.description}}</p>
+<p>Current Bid: <strong>${{item.price.price}}</strong> by {{item.price.bid_user}}</p>
+{%if message %}
+    <div class="list-group">
+        <div class="alert alert-danger" role="alert">
+            {{message}}
+        </div>
+    </div>
+{% endif %}
+{%if success_message %}
+<div class="list-group">
+    <div class="alert alert-success" role="alert">
+        {{success_message}}
+    </div>
+</div>
+{% endif %}
+{%if user.is_authenticated and active %}
+    <form action="{% url 'bid' item.id %}" method="post">
+        {%csrf_token%}
+        <input type="number" placeholder="Bid" name="price">
+        <input type="submit" value="Place Bid">
+    </form>
+{%elif user.is_authenticated and not active%}
+{%else%}
+    <a href="{% url 'login'%}">Login to bid</a>
+{%endif%}
+    <h5 id = "top_spacing">Details</h5>
+    <ul class="list-group">
+        <li class="list-group-item">Listed by :{{item.user}}</li>
+        <li class="list-group-item">Category:{{item.categories}}</li>
+    </ul>
+    <div id ="top_spacing">
+        {% if user.is_authenticated %}
+            {% if watchlisted %}
+            <form action = "{% url 'remove' item.id %}" method="post">
+                {%csrf_token%}
+                <input id = "red" type="submit" value = "Remove from watchlist">
+            </form>
+            {%else%}
+            <form action="{% url 'add' item.id %}">
+                <input  type="submit" value = "Add to watchlist">
+
+            </form>
+            {%endif%}
+
+        {%endif%}
+    </div>
+    <div id = "top_spacing">
+        {% if user.is_authenticated %}
+        <form action="{% url 'comment' item.id %}" method = "post">
+            {%csrf_token%}
+            <textarea placeholder="Add a comment" cols="90" name="comments"></textarea>
+            <input id = "cmtsubmit" type = "submit" value="post">
+        </form>
+        {%endif%}
+    </div>
+    <div class="list-group" >
+        <h5 id = "left">    Comments</h5>
+        <ul class="list-group">
+            {% for comment in comments %}
+                <li class="list-group-item">
+                    <p>{{comment.comment}}</p>
+                    <p><i></i>by <strong>{{comment.Comment_user}}</strong>({{comment.time.date}})</p>
+                </li>
+                {%empty%}
+                <p>No comments</p>
+            {%endfor%}
+
+        </ul>
+    </div>
+
+{% endblock %}

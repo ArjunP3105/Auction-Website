@@ -1,0 +1,36 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Watchlist</h2>
+    <form action = "{% url 'watchcategory' %}" method="post">
+      {%csrf_token%}
+      <select name="category_name">
+        {% for category in categories %}
+        <option value="{{category.id}}">{{category}}</option>
+        {%endfor%}
+      </select>
+      <input type="submit" placeholder="Sort">
+    </form>
+    <hr>
+    <div class="row mx-3">
+    {% for list in lists %}
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{list.image}}" alt="{{list.title}}">
+        <div class="card-body">
+          <h5 class="card-title">{{list.title}}<p>Price: ${{list.price.price}}</p></h5>
+          <p class="card-text">{{list.description}}</p>
+          <p class="card-text">Listed by:<strong>{{list.user}}</strong></p>
+          <form action = "{% url 'product' list.id%}" method="post">
+            {%csrf_token%}
+            <input type  ="submit" value="View">
+          </form>
+        </div>
+      </div>
+      {%empty%}
+      <p id = "watch">Watchlist Empty..</p>
+
+
+    {% endfor %}
+    </div>
+{% endblock %}
